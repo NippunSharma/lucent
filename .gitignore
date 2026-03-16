@@ -1,0 +1,73 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+
+# Node
+node_modules/
+frontend/dist/
+
+# Environment / secrets
+.env
+video_agent/.env
+keys.txt
+
+# Generated outputs & runtime dirs
+manim_output/
+manim_uploads/
+manim_workspace/
+manim_cache/
+my_output/
+output/
+cache/
+_test_workspace/
+_tex_debug_cache/
+
+# Remotion (unused)
+remotion/
+remotion_project/
+remotion-projects-extracted/
+remotion_workspaces/
+remotion-projects-archive.tar.gz
+references/
+
+# Separately-deployed services
+manimgl_service/
+manim_service/
+
+# Test / debug files
+_test_*.py
+_test_*.mp4
+debug_*.py
+cloudrun_bench/
+mfput.log
+
+# Misc unused
+mafs/
+ffmpeg-full/
+server.py
+llms_adk.txt
+IMPROVEMENTS.md
+start_frontend.ps1
+start_server.ps1
+*.plan.md
+
+# Old video_agent (Remotion-era, unused)
+video_agent/examples/
+video_agent/styles/
+video_agent/agent.py
+video_agent/bundler.py
+video_agent/cache.py
+video_agent/code_generator.py
+video_agent/metadata.py
+video_agent/planner.py
+video_agent/renderer.py
+video_agent/review.py
+video_agent/scene.py
+video_agent/__init__.py
+
+# LLM reference docs bundled in frontend (not needed)
+frontend/src/llms_*.txt

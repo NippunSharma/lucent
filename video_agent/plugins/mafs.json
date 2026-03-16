@@ -1,0 +1,17 @@
+{
+  "name": "mafs",
+  "npm_package": "mafs",
+  "version": "0.21.0",
+  "capabilities": ["math", "equations", "graphs", "plots", "vectors", "coordinates", "geometry", "calculus", "latex", "functions"],
+  "when_to_use": "For any scene involving mathematical content: equations, function plots, coordinate systems, vectors, geometric shapes, calculus visualization, or LaTeX rendering",
+  "css_imports": ["mafs/core.css", "mafs/font.css"],
+  "import_instructions": "import { Mafs, Coordinates, Plot, Line, Circle, Point, Vector, Text as MafsText, Polygon, useMovablePoint, Theme, vec, LaTeX } from 'mafs'; import 'mafs/core.css'; import 'mafs/font.css';",
+  "api_reference": "MAFS — MATH VISUALIZATION LIBRARY\n\nReact components for interactive math visualization. PREFER mafs for ALL math-related content.\n\nCONTAINER:\n<Mafs width={1920} height={1080} viewBox={{ x: [-5, 5], y: [-3, 3] }} pan={false} zoom={false}>\n  <Coordinates.Cartesian />\n  {/* math content */}\n</Mafs>\nALWAYS set width and height explicitly (use 1920x1080 for full-frame).\n\nCOMPONENTS:\n- <Coordinates.Cartesian /> or <Coordinates.Polar /> — axis grid\n- <Plot.OfX y={(x) => Math.sin(x)} color={Theme.blue} /> — plot y=f(x)\n- <Plot.Parametric xy={(t) => [Math.cos(t), Math.sin(t)]} t={[0, 2*Math.PI]} />\n- <Plot.Inequality y={{ '<': (x) => Math.sin(x), '>': (x) => -1 }} />\n- <Point x={2} y={3} color={Theme.orange} /> — point marker (NO opacity prop)\n- <Vector tail={[0,0]} tip={[3,2]} color={Theme.green} /> — arrow vector\n- <Circle center={[0,0]} radius={2} color={Theme.blue} />\n- <Line.ThroughPoints point1={[0,0]} point2={[3,2]} /> — line through 2 points\n- <Line.PointSlope point={[0,0]} slope={2} />\n- <Line.PointAngle point={[0,0]} angle={Math.PI/4} />\n- <Line.Segment point1={[0,0]} point2={[3,2]} />\n- <Polygon points={[[0,0],[3,0],[1.5,2]]} color={Theme.indigo} />\n- <LaTeX tex=\"E=mc^2\" at={[2, 3]} /> — LaTeX at position\n- <MafsText x={2} y={3}>Label</MafsText>\n\nLINE SUB-COMPONENTS — ONLY these exist:\n  Line.ThroughPoints, Line.PointSlope, Line.PointAngle, Line.Segment\n  There is NO Line.Horizontal or Line.Vertical!\n  For horizontal: <Line.ThroughPoints point1={[-10, y]} point2={[10, y]} />\n  For vertical: <Line.ThroughPoints point1={[x, -10]} point2={[x, 10]} />\n\nTHEME COLORS: Theme.blue, Theme.orange, Theme.green, Theme.red, Theme.indigo, Theme.pink, Theme.yellow\n\nANIMATION: Use useCurrentFrame() + interpolate() to animate viewBox, point positions, function parameters, colors, and opacity of container divs.",
+  "forbidden_patterns": [
+    "Do NOT use Line.Horizontal or Line.Vertical — they do not exist. Use Line.ThroughPoints instead",
+    "Do NOT pass opacity prop to <Point> — it does not accept it. Wrap in a div with opacity instead",
+    "Do NOT forget to import CSS: 'mafs/core.css' and 'mafs/font.css'",
+    "Do NOT use <Text> from mafs — it is exported as MafsText to avoid conflicts with Remotion's Text"
+  ],
+  "remotion_integration_notes": "Mafs renders via SVG in React. Wrap <Mafs> in a positioned div. Animate by changing props based on useCurrentFrame(). For reveal effects, use clip-path or opacity on wrapper divs. The viewBox can be animated for zoom effects."
+}

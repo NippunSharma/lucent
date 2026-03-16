@@ -1,0 +1,15 @@
+{
+  "name": "mathjax-full",
+  "npm_package": "mathjax-full",
+  "version": "3.2.2",
+  "capabilities": ["latex", "math-rendering", "equations", "formulas", "mathematical-notation", "scientific-notation"],
+  "when_to_use": "For rendering LaTeX mathematical equations as SVG. Use the pre-built MathEquation component instead of importing mathjax-full directly",
+  "import_instructions": "import { MathEquation } from '../components';",
+  "api_reference": "MATHJAX — LaTeX EQUATION RENDERING\n\nDo NOT import mathjax-full directly. Use the pre-built <MathEquation> component which wraps mathjax-full for synchronous SVG rendering.\n\n```tsx\n<MathEquation\n  latex=\"E = mc^2\"\n  theme={theme}\n  fontSize={60}\n  color=\"#58a6ff\"\n  label=\"Einstein's equation\"\n  revealMode=\"fade\"  // 'fade' | 'clip' | 'scale'\n  startFrame={15}\n/>\n```\n\nThe latex prop takes raw LaTeX (no \\[ \\] delimiters needed).\n\nFor inline math within text, wrap the equation in $...$ and handle rendering via the MathEquation component.\n\nPREFER using <LaTeX> from mafs when equations are inside a coordinate system or math visualization context.",
+  "forbidden_patterns": [
+    "Do NOT import from 'mathjax-full' directly — use the MathEquation component",
+    "Do NOT use better-react-mathjax — it renders asynchronously which breaks screenshot capture",
+    "Do NOT add \\[ \\] or $ delimiters to the latex prop — pass raw LaTeX only"
+  ],
+  "remotion_integration_notes": "MathEquation renders LaTeX synchronously to SVG using mathjax-full. This ensures frame-perfect rendering for screenshots and visual review."
+}

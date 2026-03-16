@@ -1,0 +1,15 @@
+{
+  "name": "animejs",
+  "npm_package": "animejs",
+  "version": "4.0.2",
+  "capabilities": ["animation", "tweening", "svg-animation", "path-animation", "stagger", "timeline", "morphing", "easing"],
+  "when_to_use": "For complex multi-property CSS/SVG animations, staggered animations across many elements, SVG path morphing, or when Remotion's spring/interpolate is insufficient for the desired effect",
+  "import_instructions": "import anime from 'animejs';",
+  "api_reference": "ANIME.JS — ANIMATION ENGINE\n\nAnime.js provides advanced tweening and timeline capabilities. In Remotion, use it to COMPUTE values per frame rather than running timeline playback.\n\nKEY CONCEPT: Do NOT let anime.js run its own timeline. Instead, use anime.set() or compute values manually based on useCurrentFrame().\n\nUSEFUL FUNCTIONS:\n- anime.set(targets, properties) — instantly set CSS properties\n- anime.stagger(value, options) — generate staggered delay values: anime.stagger(100) returns [0, 100, 200, ...]\n- anime.path(svgPath) — get path coordinates for motion-along-path\n\nEASING FUNCTIONS (use for interpolate alternatives):\n- 'easeInOutQuad', 'easeInOutCubic', 'easeOutElastic', 'easeOutBounce'\n- 'spring(mass, stiffness, damping, velocity)'\n\nIN REMOTION PATTERN:\n```tsx\nconst frame = useCurrentFrame();\nconst staggerDelays = anime.stagger(5, { from: 'center' });\nconst elements = items.map((item, i) => {\n  const itemFrame = frame - (staggerDelays[i] as number);\n  const opacity = interpolate(itemFrame, [0, 15], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });\n  return <div style={{ opacity }}>{item}</div>;\n});\n```",
+  "forbidden_patterns": [
+    "Do NOT call anime() to create running animations — Remotion controls timing via frames",
+    "Do NOT use anime.timeline() for playback — use Remotion's Sequence/Series for timing",
+    "Use anime.js only for VALUE COMPUTATION (stagger, path, easing functions), not for DOM manipulation"
+  ],
+  "remotion_integration_notes": "Anime.js is best used as a utility library in Remotion for computing stagger values, easing curves, and SVG path coordinates. Do not let it manage its own animation loop."
+}

@@ -1,0 +1,15 @@
+{
+  "name": "lottie",
+  "npm_package": "lottie-web",
+  "version": "5.12.2",
+  "related_packages": ["@remotion/lottie"],
+  "capabilities": ["lottie", "after-effects", "vector-animation", "icon-animation", "micro-animation", "loading", "illustration"],
+  "when_to_use": "For playing pre-made Lottie/Bodymovin JSON animations: animated icons, illustrations, loading spinners, or any After Effects exported animation",
+  "import_instructions": "import { Lottie } from '@remotion/lottie'; import animationData from './animation.json';",
+  "api_reference": "LOTTIE — AFTER EFFECTS ANIMATIONS IN REMOTION\n\nPlay Lottie JSON animations synchronized to Remotion's frame timeline.\n\nUSAGE:\n```tsx\nimport { Lottie, LottieAnimationData } from '@remotion/lottie';\nimport { useCurrentFrame, useVideoConfig, staticFile } from 'remotion';\nimport { useEffect, useState } from 'react';\n\nconst MyLottie: React.FC = () => {\n  const [data, setData] = useState<LottieAnimationData | null>(null);\n  useEffect(() => {\n    fetch(staticFile('animation.json'))\n      .then(r => r.json())\n      .then(setData);\n  }, []);\n  if (!data) return null;\n  return <Lottie animationData={data} />;\n};\n```\n\nPROPS:\n- animationData: LottieAnimationData — the parsed JSON\n- playbackRate?: number — speed multiplier\n- direction?: 'forward' | 'backward'\n- loop?: boolean\n- style?: CSSProperties\n\nLottie files can be found at lottiefiles.com. Download the JSON and place in public/ folder.",
+  "forbidden_patterns": [
+    "Do NOT import Lottie JSON with static import if it's large — use fetch + useState pattern",
+    "MUST use @remotion/lottie Lottie component, NOT lottie-web directly (for frame sync)"
+  ],
+  "remotion_integration_notes": "@remotion/lottie automatically synchronizes Lottie playback to Remotion's frame clock. No manual timeline management needed."
+}

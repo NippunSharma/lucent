@@ -1,0 +1,15 @@
+{
+  "name": "mojs",
+  "npm_package": "@mojs/core",
+  "version": "1.7.1",
+  "capabilities": ["motion-graphics", "burst", "particles", "shape-animation", "confetti", "explosion", "starburst", "swirl"],
+  "when_to_use": "For decorative motion graphics effects: burst/explosion animations, particle confetti, shape transitions, celebration effects, or organic motion patterns",
+  "import_instructions": "import mojs from '@mojs/core';",
+  "api_reference": "MO.JS — MOTION GRAPHICS TOOLBOX\n\nMo.js provides procedural shape animation and burst effects. In Remotion, use it to generate shape parameters and positions based on frame.\n\nSHAPES:\n- mojs.Shape({ shape: 'circle'|'rect'|'polygon'|'cross'|'zigzag', ... })\n- Properties: radius, fill, stroke, strokeWidth, angle, scale, opacity, x, y\n\nBURST (particle explosion):\n- mojs.Burst({ radius: {0: 100}, count: 8, children: { shape: 'circle', ... } })\n\nIN REMOTION PATTERN:\nSince mo.js manages its own timeline, the recommended approach is to use it for DESIGN INSPIRATION and implement the actual effects with Remotion primitives:\n\n```tsx\nconst BurstEffect: React.FC<{ frame: number }> = ({ frame }) => {\n  const progress = spring({ frame, fps: 30, config: { damping: 12 } });\n  const particles = Array.from({ length: 8 }, (_, i) => {\n    const angle = (i / 8) * Math.PI * 2;\n    const radius = progress * 100;\n    return (\n      <div key={i} style={{\n        position: 'absolute',\n        left: '50%', top: '50%',\n        transform: `translate(${Math.cos(angle) * radius}px, ${Math.sin(angle) * radius}px) scale(${1 - progress * 0.5})`,\n        opacity: 1 - progress,\n        width: 12, height: 12,\n        borderRadius: '50%',\n        background: '#58a6ff',\n      }} />\n    );\n  });\n  return <>{particles}</>;\n};\n```",
+  "forbidden_patterns": [
+    "Do NOT call .play() or .replay() on mo.js objects — Remotion controls timing",
+    "PREFER implementing effects with Remotion primitives (spring, interpolate) inspired by mo.js patterns",
+    "Mo.js may have compatibility issues with SSR — test in Remotion Studio first"
+  ],
+  "remotion_integration_notes": "Mo.js is best used as inspiration for burst/particle effects. Implement the actual effects using Remotion's spring() and interpolate() with trigonometric calculations for radial particle layouts."
+}

@@ -1,0 +1,16 @@
+{
+  "name": "three",
+  "npm_package": "three",
+  "version": "0.176.0",
+  "related_packages": ["@react-three/fiber", "@remotion/three"],
+  "capabilities": ["3d", "three-dimensional", "3d-objects", "3d-scenes", "3d-animation", "camera-3d", "lighting", "materials", "geometry", "3d-text", "3d-data-viz"],
+  "when_to_use": "For any scene requiring 3D rendering: 3D objects, 3D data visualization, 3D text, product showcases, spatial animations, or immersive 3D environments",
+  "import_instructions": "import { ThreeCanvas } from '@remotion/three'; import { useCurrentFrame } from 'remotion'; import * as THREE from 'three';",
+  "api_reference": "THREE.JS + REACT THREE FIBER + @REMOTION/THREE\n\nFor 3D scenes in Remotion, use <ThreeCanvas> from @remotion/three (NOT regular <Canvas>).\n\nSETUP:\n```tsx\nimport { ThreeCanvas } from '@remotion/three';\nimport { useCurrentFrame, useVideoConfig } from 'remotion';\n\nconst Scene3D: React.FC = () => {\n  const frame = useCurrentFrame();\n  const { width, height } = useVideoConfig();\n  return (\n    <ThreeCanvas\n      orthographic={false}\n      width={width}\n      height={height}\n      style={{ width: '100%', height: '100%' }}\n      camera={{ position: [0, 0, 5], fov: 75 }}\n    >\n      <ambientLight intensity={0.5} />\n      <pointLight position={[10, 10, 10]} />\n      <MyMesh />\n    </ThreeCanvas>\n  );\n};\n```\n\nGEOMETRY: boxGeometry, sphereGeometry, cylinderGeometry, coneGeometry, torusGeometry, planeGeometry\nMATERIALS: meshStandardMaterial (PBR), meshPhongMaterial (shiny), meshBasicMaterial (unlit), meshNormalMaterial\nLIGHTS: ambientLight, pointLight, directionalLight, spotLight\nCAMERA: Animate camera position/rotation using useCurrentFrame() + interpolate()\n\nANIMATION PATTERN:\nconst rotation = interpolate(frame, [0, 90], [0, Math.PI * 2]);\n<mesh rotation={[0, rotation, 0]}>\n  <boxGeometry args={[1, 1, 1]} />\n  <meshStandardMaterial color=\"#58a6ff\" metalness={0.5} roughness={0.3} />\n</mesh>",
+  "forbidden_patterns": [
+    "Do NOT use <Canvas> from @react-three/fiber — use <ThreeCanvas> from @remotion/three",
+    "Do NOT use useFrame() from R3F — use useCurrentFrame() from Remotion for deterministic rendering",
+    "MUST pass width and height props to ThreeCanvas"
+  ],
+  "remotion_integration_notes": "ThreeCanvas replaces the regular React Three Fiber Canvas. It ensures frame-perfect 3D rendering. All animation must be driven by useCurrentFrame(), not useFrame()."
+}

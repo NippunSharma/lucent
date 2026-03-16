@@ -1,0 +1,190 @@
+[
+  {
+    "id": "bar_line_chart",
+    "project": "remotion-7",
+    "description": "Animated bar + line chart showing monthly sales data with spring-based bars, progressive line draw, glowing SVG effects, and pulsing tip dot",
+    "tags": ["chart", "data", "visualization", "bar", "line", "svg", "spring", "sales", "statistics", "numbers"],
+    "layout_types": ["DataChart"],
+    "scene_files": ["src/BarLineChart.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "medium"
+  },
+  {
+    "id": "terminal_typing",
+    "project": "remotion-2",
+    "description": "Mac-style terminal with character-by-character typing, ASCII art logo reveal, 3D perspective entrance, and progressive server output lines",
+    "tags": ["terminal", "typing", "code", "cli", "text", "3d", "perspective", "programming", "developer", "tech"],
+    "layout_types": ["TypewriterText", "CinematicTitle"],
+    "scene_files": ["src/scenes/Scene1Terminal.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "medium"
+  },
+  {
+    "id": "app_home_screen",
+    "project": "remotion-2",
+    "description": "Desktop app home screen with staggered spring animations: title, tagline, chat input, control chips — all with coordinated fade + translateY entrance",
+    "tags": ["app", "ui", "home", "product", "demo", "spring", "stagger", "entrance", "saas", "software"],
+    "layout_types": ["CinematicTitle", "SplitScreen"],
+    "scene_files": ["src/scenes/Scene2Home.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "medium"
+  },
+  {
+    "id": "chat_interface",
+    "project": "remotion-2",
+    "description": "Three-column chat interface with sidebar, streaming message typing, progress steps with checkmarks, and tool call indicators",
+    "tags": ["chat", "ai", "streaming", "typing", "ui", "interface", "progress", "sidebar", "app"],
+    "layout_types": ["SplitScreen", "TypewriterText"],
+    "scene_files": ["src/scenes/Scene3Chat.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "high"
+  },
+  {
+    "id": "provider_grid",
+    "project": "remotion-2",
+    "description": "Two side-by-side dropdown panels with staggered item reveals — providers with colored dots and models with descriptions",
+    "tags": ["grid", "cards", "list", "comparison", "selection", "providers", "stagger", "panel"],
+    "layout_types": ["ComparisonColumns", "ProcessFlow"],
+    "scene_files": ["src/scenes/Scene4Providers.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "medium"
+  },
+  {
+    "id": "catalog_modal",
+    "project": "remotion-2",
+    "description": "Modal overlay with category filter pills and 3x2 grid of server cards with icons, auth badges, and install buttons",
+    "tags": ["modal", "catalog", "grid", "cards", "filter", "badges", "overlay", "marketplace"],
+    "layout_types": ["ImageGallery", "ProcessFlow"],
+    "scene_files": ["src/scenes/Scene5MCP.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "medium"
+  },
+  {
+    "id": "platform_cards",
+    "project": "remotion-2",
+    "description": "Full-screen hero with subtitle and 4 bouncy platform cards with SVG icons, status dots, and feature tags",
+    "tags": ["cards", "platforms", "icons", "hero", "spring", "bouncy", "social", "messaging"],
+    "layout_types": ["CinematicTitle", "ImageGallery"],
+    "scene_files": ["src/scenes/Scene6Messaging.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "medium"
+  },
+  {
+    "id": "logo_reveal",
+    "project": "remotion-2",
+    "description": "Three-part logo combo: converging lines + burst ring, word-by-word text reveal, provider icon grid with tagline",
+    "tags": ["logo", "intro", "reveal", "burst", "particles", "text", "brand", "animation"],
+    "layout_types": ["CinematicTitle"],
+    "scene_files": ["src/scenes/Scene7Logo.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "high"
+  },
+  {
+    "id": "github_cta",
+    "project": "remotion-2",
+    "description": "GitHub CTA with spinning logo, orbiting star icons, pulsing text, monospace URL card, floating particles",
+    "tags": ["cta", "github", "outro", "call-to-action", "social", "spinning", "particles"],
+    "layout_types": ["CinematicTitle"],
+    "scene_files": ["src/scenes/Scene8GitHub.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "medium"
+  },
+  {
+    "id": "product_demo_intro",
+    "project": "remotion-3",
+    "description": "Product demo intro scene with app shell chrome, brand presentation, and animated feature highlights",
+    "tags": ["product", "demo", "intro", "saas", "app", "brand", "features"],
+    "layout_types": ["CinematicTitle"],
+    "scene_files": ["src/scenes/IntroScene.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "medium"
+  },
+  {
+    "id": "social_inbox",
+    "project": "remotion-3",
+    "description": "Social media inbox UI with message list, reply interface, and progressive content loading animations",
+    "tags": ["social", "inbox", "messages", "ui", "app", "product", "demo"],
+    "layout_types": ["SplitScreen"],
+    "scene_files": ["src/scenes/SocialInboxScene.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "high"
+  },
+  {
+    "id": "spacex_timeline",
+    "project": "remotion-4",
+    "description": "SpaceX rocket launches 2015-2025 with animated launch parabolas, trajectory fading, minimalist abstract style",
+    "tags": ["timeline", "space", "rockets", "trajectory", "animation", "minimalist", "history", "chronological", "science"],
+    "layout_types": ["TimelineView"],
+    "scene_files": ["src/SpaceXTimeline.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "medium"
+  },
+  {
+    "id": "youtube_lower_third",
+    "project": "remotion-5",
+    "description": "YouTube lower third overlay: slide-in from bottom, avatar + subscriber count, Subscribe button with spring bounce",
+    "tags": ["youtube", "lower-third", "overlay", "subscribe", "button", "spring", "bounce", "social"],
+    "layout_types": ["QuoteCard"],
+    "scene_files": ["src/Composition.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "low"
+  },
+  {
+    "id": "3d_towers_chart",
+    "project": "remotion-6",
+    "description": "3D tower visualization of top 20 video games using React Three Fiber boxes with height as data dimension",
+    "tags": ["3d", "three.js", "chart", "visualization", "towers", "games", "data", "boxes"],
+    "layout_types": ["DataChart"],
+    "scene_files": ["src/Scene.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "high"
+  },
+  {
+    "id": "strava_run_story",
+    "project": "remotion-8",
+    "description": "Animated Instagram story from Strava GPX data: map with route tracing, live pace/distance/elevation metrics",
+    "tags": ["map", "gps", "run", "strava", "route", "metrics", "instagram", "story", "sport", "fitness"],
+    "layout_types": ["SplitScreen"],
+    "scene_files": ["src/RunStory.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "high"
+  },
+  {
+    "id": "bms_cell_balancing",
+    "project": "remotion-9",
+    "sub_path": "remotion-bms",
+    "description": "Battery Management System active cell balancing animation showing energy flow between cells",
+    "tags": ["engineering", "battery", "energy", "technical", "science", "diagram", "flow", "electronics"],
+    "layout_types": ["ProcessFlow"],
+    "scene_files": ["src/BmsCellBalancing.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "medium"
+  },
+  {
+    "id": "3d_logo",
+    "project": "remotion-10",
+    "description": "3D SVG logo with metallic material, camera rotation, lighting setup using React Three Fiber",
+    "tags": ["3d", "logo", "three.js", "metallic", "material", "rotation", "brand"],
+    "layout_types": ["CinematicTitle"],
+    "scene_files": ["src/RemotionLogo3D.tsx"],
+    "has_thinking": true,
+    "has_ideal_prompt": true,
+    "complexity": "medium"
+  }
+]
