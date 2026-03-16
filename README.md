@@ -1,6 +1,6 @@
 # Lucent — AI Tutor with Real-Time Voice & Generated Animated Videos
 
-**Lucent** is an AI-powered tutor that generates 3Blue1Brown-style animated educational videos on any topic, in real time, through a voice-first conversational interface powered by Gemini Live.
+**Lucent** is an AI-powered tutor that generates animated educational videos on any topic, in real time, through a voice-first conversational interface powered by Gemini Live.
 
 Ask anything. Watch it come alive.
 
