@@ -71,3 +71,6 @@ video_agent/__init__.py
 
 # LLM reference docs bundled in frontend (not needed)
 frontend/src/llms_*.txt
+
+# Large data files
+videos/_2022/wordle/data/
