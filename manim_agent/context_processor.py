@@ -29,6 +29,7 @@ from .cache import cache_research, get_cached_research
 logger = logging.getLogger(__name__)
 
 PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "gemini-devpost-hackathon")
+RESEARCHER_MODEL = os.environ.get("RESEARCHER_MODEL", "gemini-3-flash-preview")
 
 
 @dataclass
@@ -74,7 +75,7 @@ class Context:
         return "\n".join(parts)
 
 
-RESEARCH_PROMPT = r"""You are a research assistant preparing material for an animated educational video made with ManimGL (3Blue1Brown style).
+RESEARCH_PROMPT = r"""You are a research assistant preparing material for an animated educational video made with Manim.
 Given a topic, produce a thorough research brief.
 
 OUTPUT FORMAT (strict JSON):
@@ -86,7 +87,7 @@ OUTPUT FORMAT (strict JSON):
       "title": "Subtopic name",
       "key_points": ["fact 1", "fact 2", "fact 3"],
       "statistics": ["stat with source if available"],
-      "manim_visual_idea": "How to visualize this with ManimGL (equations, graphs, 3D, geometric constructions)",
+      "manim_visual_idea": "How to visualize this with Manim (equations, graphs, 3D, geometric constructions)",
       "depth": "brief | moderate | detailed"
     }
   ],
@@ -103,7 +104,7 @@ REQUIREMENTS:
 - Include subtopics covering the topic comprehensively
 - Each subtopic should have 3-5 key points with verified facts
 - Include at least 5 statistics or specific numbers
-- Suggest ManimGL visualization ideas (equations, graphs, 3D surfaces, geometric proofs)
+- Suggest Manim visualization ideas (equations, graphs, 3D surfaces, geometric proofs)
 - The hook should be surprising or thought-provoking
 - Include key equations in LaTeX format where relevant
 - Use web search results to verify facts and find recent information
@@ -169,7 +170,7 @@ def _research_topic(topic: str) -> dict:
 
     try:
         response = client.models.generate_content(
-            model="gemini-3-flash-preview",
+            model=RESEARCHER_MODEL,
             contents=f"{RESEARCH_PROMPT}\n\nTOPIC: {topic}",
             config=GenerateContentConfig(
                 thinking_config=ThinkingConfig(thinking_budget=8000),
@@ -180,7 +181,7 @@ def _research_topic(topic: str) -> dict:
         logger.warning("Research: grounded search failed (%s), falling back", e)
         try:
             response = client.models.generate_content(
-                model="gemini-3-flash-preview",
+                model=RESEARCHER_MODEL,
                 contents=f"{RESEARCH_PROMPT}\n\nTOPIC: {topic}",
                 config=GenerateContentConfig(
                     thinking_config=ThinkingConfig(thinking_budget=8000),
@@ -223,9 +224,10 @@ def _process_pdf(pdf_path: Path) -> list[ReferenceMaterial]:
 
     try:
         response = client.models.generate_content(
-            model="gemini-3-flash-preview",
+            model=RESEARCHER_MODEL,
             contents=[
                 Content(
+                    role="user",
                     parts=[
                         Part(
                             inline_data={"mime_type": "application/pdf", "data": pdf_b64}
@@ -279,9 +281,10 @@ def _process_handwritten_notes(image_path: Path) -> list[ReferenceMaterial]:
 
     try:
         response = client.models.generate_content(
-            model="gemini-3-flash-preview",
+            model=RESEARCHER_MODEL,
             contents=[
                 Content(
+                    role="user",
                     parts=[
                         Part(inline_data={"mime_type": mime_type, "data": img_b64}),
                         Part(text=NOTES_OCR_PROMPT),
@@ -339,7 +342,7 @@ def _process_url(url: str) -> ReferenceMaterial:
     client = _get_client()
     try:
         response = client.models.generate_content(
-            model="gemini-3-flash-preview",
+            model=RESEARCHER_MODEL,
             contents=(
                 "Extract the key educational content from this webpage. "
                 "Include all important facts, equations (in LaTeX), definitions, "

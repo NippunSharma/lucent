@@ -1,8 +1,10 @@
 fastapi
 uvicorn[standard]
 python-dotenv
+python-multipart
 google-genai
 google-auth
+google-cloud-storage
 sse-starlette
 httpx
 requests

@@ -98,7 +98,7 @@
     "3d_visualization": {
       "description": "ThreeDScene, Surface, Torus, Sphere, TexturedSurface, 3D axes, camera and light control, parametric surfaces, cross-sections",
       "examples": [
-        {"id": "manim-surface", "file": "manim/example_scenes.py", "classes": ["SurfaceExample"], "lines": "440-478", "summary": "ThreeDScene with Torus, Sphere, TexturedSurface, SurfaceMesh, camera/light control"},
+        {"id": "manim-surface", "file": "manim/example_scenes.py", "classes": ["SurfaceExample"], "lines": "566-650", "summary": "ThreeDScene with Torus, Sphere, TexturedSurface, SurfaceMesh, camera/light control. Uses FadeOut/FadeIn (not Transform) between different surfaces to avoid broadcast shape errors"},
         {"id": "2024-manim-lorenz", "file": "videos/_2024/manim_demo/lorenz.py", "classes": ["LorenzAttractor"], "lines": "30-115", "summary": "Lorenz attractor in 3D with ThreeDAxes, ODE solution curves, ParametricCurve"},
         {"id": "2025-spheres-volumes", "file": "videos/_2025/spheres/volumes.py", "classes": ["VolumeGrid", "SeparateRingsOfLatitude", "CrossBallWithCircle"], "lines": "113-600", "summary": "3D volume grids, sphere cross-sections, rings of latitude"},
         {"id": "2026-hairy-ball-spheres", "file": "videos/_2026/hairy_ball/spheres.py", "classes": ["IntroduceVectorField", "StereographicProjection", "InsideOut"], "lines": "164-800", "summary": "3D sphere with vector fields, stereographic projection, unit normals"},

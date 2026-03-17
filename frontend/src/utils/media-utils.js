@@ -18,7 +18,7 @@ export class AudioStreamer {
     });
 
     this.context = new AudioContext({ sampleRate: 16000 });
-    await this.context.audioWorklet.addModule('/audio-processors/capture.worklet.js');
+    await this.context.audioWorklet.addModule(`${import.meta.env.BASE_URL}audio-processors/capture.worklet.js`);
     const source = this.context.createMediaStreamSource(this.stream);
     this.processor = new AudioWorkletNode(this.context, 'audio-capture-processor');
 
@@ -61,7 +61,7 @@ export class AudioPlayer {
 
   async init() {
     this.context = new AudioContext({ sampleRate: 24000 });
-    await this.context.audioWorklet.addModule('/audio-processors/playback.worklet.js');
+    await this.context.audioWorklet.addModule(`${import.meta.env.BASE_URL}audio-processors/playback.worklet.js`);
     this.workletNode = new AudioWorkletNode(this.context, 'pcm-processor');
 
     this.analyser = this.context.createAnalyser();

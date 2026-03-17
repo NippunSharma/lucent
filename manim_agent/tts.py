@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 
 PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "gemini-devpost-hackathon")
 TTS_LOCATION = os.environ.get("GOOGLE_CLOUD_TTS_LOCATION", "us-central1")
-TTS_MODEL = "gemini-2.5-flash-tts"
-TTS_VOICE = "Algenib"
+TTS_MODEL = os.environ.get("TTS_MODEL", "gemini-2.5-flash-tts")
+TTS_VOICE = os.environ.get("TTS_VOICE", "Algenib")
 TTS_PROMPT_STYLE = (
     "Narrate in a warm, friendly, and engaging teaching tone, "
     "as if explaining to a curious student. Speak clearly and at a moderate pace."

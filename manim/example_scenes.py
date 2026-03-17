@@ -608,18 +608,24 @@ class SurfaceExample(ThreeDScene):
         for mob in surfaces[1:]:
             mob.rotate(PI / 2)
 
-        self.play(
-            Transform(surface, surfaces[1]),
-            run_time=3
-        )
+        # NOTE: Do NOT use Transform between surfaces with different geometry
+        # (different point counts cause broadcast shape errors). Use FadeOut/FadeIn.
+        self.play(FadeOut(surface), run_time=0.5)
+        surface = surfaces[1]
+        self.add(surface)
+        self.play(FadeIn(surface), run_time=0.5)
+        self.wait(2)
 
         self.play(
-            Transform(surface, surfaces[2]),
-            # Move camera frame during the transition
+            FadeOut(surface),
             self.frame.animate.increment_phi(-10 * DEG),
             self.frame.animate.increment_theta(-20 * DEG),
-            run_time=3
+            run_time=1
         )
+        surface = surfaces[2]
+        self.add(surface)
+        self.play(FadeIn(surface), run_time=0.5)
+        self.wait(2)
         # Add ambient rotation
         self.frame.add_updater(lambda m, dt: m.increment_theta(-0.1 * dt))
 

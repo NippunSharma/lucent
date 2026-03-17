@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nippun — Developer</title>
+  <title>Nippun Sharma</title>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -36,17 +36,19 @@
     }
 
     .avatar {
-      width: 96px;
-      height: 96px;
+      width: 112px;
+      height: 112px;
       border-radius: 50%;
-      background: linear-gradient(135deg, var(--accent), #6366f1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.2rem;
-      font-weight: 700;
       margin: 0 auto 1.5rem;
       box-shadow: 0 0 40px var(--accent-glow);
+      border: 3px solid var(--accent);
+      overflow: hidden;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.4rem; }
@@ -109,16 +111,13 @@
 </head>
 <body>
   <div class="container">
-    <div class="avatar">N</div>
-    <h1>Nippun</h1>
-    <p class="tagline">
-      Developer &amp; builder. Placeholder bio — update with your real info.
-    </p>
+    <div class="avatar"><img src="/static/nippun_profile.jpeg" alt="Nippun Sharma" /></div>
+    <h1>Nippun Sharma</h1>
+    <p class="tagline">Machine Learning Engineer</p>
 
     <div class="links">
-      <a href="https://github.com/nippun" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://linkedin.com/in/nippun" target="_blank" rel="noopener">LinkedIn</a>
-      <a href="https://twitter.com/nippun" target="_blank" rel="noopener">Twitter / X</a>
+      <a href="https://github.com/NippunSharma" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com/in/nippun-sharma" target="_blank" rel="noopener">LinkedIn</a>
     </div>
 
     <a href="/lucent/" class="lucent-cta">
@@ -130,6 +129,6 @@
     </a>
   </div>
 
-  <footer>&copy; 2026 Nippun. All rights reserved.</footer>
+  <footer>&copy; 2026 Nippun Sharma. All rights reserved.</footer>
 </body>
 </html>

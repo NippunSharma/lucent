@@ -1,7 +1,7 @@
 """Scene planner — generates a structured scene plan from context.
 
 Uses Gemini with thinking and Google Search to create a detailed plan
-specifying scenes, narrations, ManimGL approaches, and reference mappings.
+specifying scenes, narrations, Manim approaches, and reference mappings.
 """
 
 import json
@@ -24,8 +24,8 @@ from .prompt_templates import PLANNER_PROMPT
 logger = logging.getLogger(__name__)
 
 PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "gemini-devpost-hackathon")
-PLANNER_MODEL = "gemini-3-flash-preview"
-THINKING_BUDGET = 16000
+PLANNER_MODEL = os.environ.get("PLANNER_MODEL", "gemini-3-flash-preview")
+THINKING_BUDGET = int(os.environ.get("PLANNER_THINKING_BUDGET", "16000"))
 
 
 def _extract_json(text: str) -> dict:

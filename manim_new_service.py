@@ -33,6 +33,8 @@ from sse_starlette.sse import EventSourceResponse
 
 load_dotenv(Path(__file__).parent / "video_agent" / ".env")
 
+from google.cloud import storage as gcs_storage  # noqa: E402
+
 from manim_agent.pipeline import (  # noqa: E402
     BASE_OUTPUT_DIR,
     VIDEO_PRESETS,
@@ -50,8 +52,69 @@ UPLOAD_DIR = Path(__file__).parent / "manim_uploads"
 UPLOAD_DIR.mkdir(exist_ok=True)
 BASE_OUTPUT_DIR.mkdir(exist_ok=True)
 
+GCS_ARTIFACT_BUCKET = os.environ.get("GCS_ARTIFACT_BUCKET", "manim-renders-gemini-devpost")
+GCS_ARTIFACT_PREFIX = "artifacts"
+
 sse_queues: dict[str, list[asyncio.Queue]] = {}
 active_jobs: dict[str, asyncio.Task] = {}
+
+
+# ---------------------------------------------------------------------------
+# GCS helpers — persist final video artifacts so they survive container restarts
+# ---------------------------------------------------------------------------
+
+def _gcs_bucket() -> gcs_storage.Bucket:
+    client = gcs_storage.Client()
+    return client.bucket(GCS_ARTIFACT_BUCKET)
+
+
+def _upload_artifacts_to_gcs(video_id: str) -> None:
+    """Upload final video, metadata, screenshots, status to GCS."""
+    output_dir = BASE_OUTPUT_DIR / video_id
+    if not output_dir.exists():
+        return
+    try:
+        bucket = _gcs_bucket()
+        for fpath in output_dir.rglob("*"):
+            if not fpath.is_file():
+                continue
+            rel = fpath.relative_to(BASE_OUTPUT_DIR)
+            blob_name = f"{GCS_ARTIFACT_PREFIX}/{rel.as_posix()}"
+            content_type = "application/json"
+            if fpath.suffix == ".mp4":
+                content_type = "video/mp4"
+            elif fpath.suffix == ".jpg":
+                content_type = "image/jpeg"
+            elif fpath.suffix == ".png":
+                content_type = "image/png"
+            blob = bucket.blob(blob_name)
+            blob.upload_from_filename(str(fpath), content_type=content_type)
+        logger.info("Uploaded artifacts for %s to GCS", video_id)
+    except Exception as e:
+        logger.warning("Failed to upload artifacts for %s to GCS: %s", video_id, e)
+
+
+def _restore_artifacts_from_gcs(video_id: str) -> bool:
+    """Download artifacts from GCS if they're missing locally. Returns True if restored."""
+    output_dir = BASE_OUTPUT_DIR / video_id
+    if (output_dir / "status.json").exists():
+        return True
+    try:
+        bucket = _gcs_bucket()
+        prefix = f"{GCS_ARTIFACT_PREFIX}/{video_id}/"
+        blobs = list(bucket.list_blobs(prefix=prefix))
+        if not blobs:
+            return False
+        for blob in blobs:
+            rel = blob.name[len(f"{GCS_ARTIFACT_PREFIX}/"):]
+            local_path = BASE_OUTPUT_DIR / rel
+            local_path.parent.mkdir(parents=True, exist_ok=True)
+            blob.download_to_filename(str(local_path))
+        logger.info("Restored artifacts for %s from GCS (%d files)", video_id, len(blobs))
+        return True
+    except Exception as e:
+        logger.warning("Failed to restore artifacts for %s from GCS: %s", video_id, e)
+        return False
 
 
 def _broadcast_sse(video_id: str, data: dict) -> None:
@@ -245,6 +308,7 @@ async def _run_pipeline_bg(
 
         if result.success:
             _update_status(video_id, "completed", video_path=result.video_path)
+            _upload_artifacts_to_gcs(video_id)
         else:
             _update_status(video_id, "failed", error=result.error)
 
@@ -284,6 +348,7 @@ async def _run_edit_bg(
 
         if result.success:
             _update_status(video_id, "completed", video_path=result.video_path)
+            _upload_artifacts_to_gcs(video_id)
         else:
             _update_status(video_id, "failed", error=result.error)
 
@@ -444,7 +509,10 @@ async def get_status(video_id: str):
     _validate_video_id(video_id)
     status_path = BASE_OUTPUT_DIR / video_id / "status.json"
     if not status_path.exists():
-        raise HTTPException(status_code=404, detail="Video ID not found")
+        if _restore_artifacts_from_gcs(video_id) and status_path.exists():
+            pass
+        else:
+            raise HTTPException(status_code=404, detail="Video ID not found")
     return json.loads(status_path.read_text(encoding="utf-8"))
 
 
@@ -453,6 +521,8 @@ async def get_composition(video_id: str):
     """Get scene metadata and reference index for a video."""
     _validate_video_id(video_id)
     comp_path = BASE_OUTPUT_DIR / video_id / "composition.json"
+    if not comp_path.exists():
+        _restore_artifacts_from_gcs(video_id)
     if not comp_path.exists():
         raise HTTPException(status_code=404, detail="Composition not found")
     return json.loads(comp_path.read_text(encoding="utf-8"))
@@ -465,6 +535,7 @@ async def get_metadata(video_id: str):
     Returns { videoId, title, videoFile, duration, sections[], screenshots[] }.
     """
     _validate_video_id(video_id)
+    _restore_artifacts_from_gcs(video_id)
     meta_path = BASE_OUTPUT_DIR / video_id / "metadata.json"
     if meta_path.exists():
         return json.loads(meta_path.read_text(encoding="utf-8"))
@@ -479,6 +550,8 @@ async def get_video(video_id: str):
     """Serve the final MP4 video."""
     _validate_video_id(video_id)
     video_path = BASE_OUTPUT_DIR / video_id / "video.mp4"
+    if not video_path.exists():
+        _restore_artifacts_from_gcs(video_id)
     if not video_path.exists():
         raise HTTPException(status_code=404, detail="Video not found")
     return FileResponse(
@@ -495,6 +568,8 @@ async def get_screenshot(video_id: str, filename: str):
     if not re.match(r"^[\d.]+\.jpg$", filename):
         raise HTTPException(status_code=400, detail="Invalid filename")
     ss_path = BASE_OUTPUT_DIR / video_id / "screenshots" / filename
+    if not ss_path.exists():
+        _restore_artifacts_from_gcs(video_id)
     if not ss_path.exists():
         raise HTTPException(status_code=404, detail="Screenshot not found")
     return FileResponse(str(ss_path), media_type="image/jpeg")
@@ -513,7 +588,7 @@ async def get_scene_video(video_id: str, scene_id: str):
 
 @app.get("/videos/{video_id}/scenes/{scene_id}/code")
 async def get_scene_code(video_id: str, scene_id: str):
-    """Get the generated ManimGL code for a scene."""
+    """Get the generated Manim code for a scene."""
     _validate_video_id(video_id)
     code_path = BASE_OUTPUT_DIR / video_id / "scene_code" / f"{scene_id}.py"
     if not code_path.exists():

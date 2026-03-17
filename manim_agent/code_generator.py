@@ -1,7 +1,6 @@
-"""ManimGL code generation with two-turn self-selecting examples and error recovery.
+"""Manim Community Edition code generation with error recovery.
 
-Turn 1: Model sees the catalog and picks relevant categories.
-Turn 2: Model receives actual example code and generates the scene.
+Generates scene code using Gemini, validates it, and provides error recovery.
 """
 
 import json
@@ -23,9 +22,7 @@ from google.genai.types import (
 )
 
 from .context_processor import Context
-from .golden_examples import get_catalog_prompt, load_examples_for_categories
 from .prompt_templates import (
-    CODEGEN_CATEGORY_REQUEST_PROMPT,
     CODEGEN_SCENE_PROMPT,
     CODEGEN_SYSTEM_PROMPT,
     EDIT_PROMPT,
@@ -35,11 +32,11 @@ from .prompt_templates import (
 logger = logging.getLogger(__name__)
 
 PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "gemini-devpost-hackathon")
-CODEGEN_MODEL = "gemini-3-flash-preview"
-CODEGEN_MODEL_FAST = "gemini-3-flash-preview"
-THINKING_BUDGET = 32000
-MAX_RETRIES = 3
-MAX_PARALLEL_SCENES = 2
+CODEGEN_MODEL = os.environ.get("CODEGEN_MODEL", "gemini-3-flash-preview")
+CODEGEN_MODEL_FAST = os.environ.get("CODEGEN_MODEL_FAST", "gemini-3-flash-preview")
+THINKING_BUDGET = int(os.environ.get("CODEGEN_THINKING_BUDGET", "32000"))
+MAX_RETRIES = int(os.environ.get("CODEGEN_MAX_RETRIES", "3"))
+MAX_PARALLEL_SCENES = int(os.environ.get("CODEGEN_MAX_PARALLEL", "2"))
 API_RETRY_ATTEMPTS = 4
 API_RETRY_BASE_DELAY = 5
 
@@ -87,59 +84,55 @@ def _extract_code(text: str) -> str:
 
 
 def _validate_code(code: str) -> str:
-    """Validate and fix common issues in generated code."""
-    if "from manimlib import" not in code:
-        code = "from manimlib import *\n\n" + code
+    """Validate and fix common issues in generated ManimCE code."""
+    # Ensure correct ManimCE import
+    if "from manim import" not in code:
+        code = "from manim import *\n\n" + code
 
-    code = re.sub(r"from manim import.*\n?", "", code)
-    code = re.sub(r"MathTex\(", "Tex(", code)
+    # Remove ManimGL import if present
+    code = re.sub(r"from manimlib import.*\n?", "", code)
+
+    # Remove interactive-only calls
     code = re.sub(r"self\.embed\(\).*\n?", "", code)
 
-    # Fix ManimCE -> ManimGL API name mismatches
-    code = re.sub(r"\bCreate\(", "ShowCreation(", code)
-    code = re.sub(r"\bUncreate\b", "Uncreate", code)  # Uncreate exists, keep it
-    code = re.sub(r"\bDot3D\(", "Sphere(radius=0.08, ", code)
-    code = re.sub(r"\bself\.move_camera\(", "self.camera.frame.set_euler_angles(", code)
+    # Fix ManimGL -> ManimCE API name mismatches
+    code = re.sub(r"\bShowCreation\(", "Create(", code)
+    code = re.sub(r"\bTexText\(", "Tex(", code)
 
-    # ManimCE fix_in_frame -> ManimGL pattern
-    code = re.sub(r"self\.add_fixed_in_frame_mobjects\(([^)]+)\)", r"\1.fix_in_frame()\n        self.add(\1)", code)
-
-    # self.frame -> self.camera.frame (in plain Scene, not InteractiveScene)
-    # Only fix if the class inherits from Scene (not InteractiveScene)
-    if "InteractiveScene" not in code:
-        code = re.sub(r"\bself\.frame\b", "self.camera.frame", code)
-
-    # VGroup(*self.mobjects) crashes when scene has non-VMobjects — use Group instead
-    code = re.sub(r"VGroup\(\s*\*\s*self\.mobjects\s*\)", "Group(*self.mobjects)", code)
-
-    # Fix reorient() with named kwargs — convert to positional args
+    # ManimGL fix_in_frame -> ManimCE add_fixed_in_frame_mobjects
     code = re.sub(
-        r"\.reorient\(\s*theta\s*=\s*([^,)]+)\s*,\s*phi\s*=\s*([^,)]+)\s*\)",
-        r".reorient(\1, \2)", code,
-    )
-    code = re.sub(
-        r"\.reorient\(\s*phi\s*=\s*([^,)]+)\s*,\s*theta\s*=\s*([^,)]+)\s*\)",
-        r".reorient(\2, \1)", code,
-    )
-    code = re.sub(
-        r"\.reorient\(\s*phi\s*=\s*([^,)]+)\s*\)",
-        r".reorient(0, \1)", code,
-    )
-    code = re.sub(
-        r"\.reorient\(\s*theta\s*=\s*([^,)]+)\s*\)",
-        r".reorient(\1)", code,
+        r"(\w+)\.fix_in_frame\(\)",
+        r"self.add_fixed_in_frame_mobjects(\1)",
+        code,
     )
 
-    # .set_fill() doesn't exist on 3D objects (Cube, Prism, Sphere, etc.)
-    # Replace chained .set_fill(color, opacity) with .set_color(color, opacity)
-    code = re.sub(
-        r"\.(Cube|Prism|Sphere|Torus|Cylinder|Cone)\(([^)]*)\)\s*\.\s*set_fill\(",
-        r".\1(\2).set_color(", code,
-    )
+    # ManimGL self.camera.frame.reorient / set_euler_angles -> ManimCE camera API
+    # self.camera.frame.reorient(theta, phi) -> self.set_camera_orientation(phi=phi*DEGREES, theta=theta*DEGREES)
+    # (Best effort — complex expressions may need manual fixing)
+
+    # ManimGL set_backstroke -> not available in ManimCE, remove it
+    code = re.sub(r"\.\s*set_backstroke\s*\([^)]*\)", "", code)
+
+    # ManimGL set_gloss / set_shadow -> not available in ManimCE, remove
+    code = re.sub(r"\.\s*set_gloss\s*\([^)]*\)", "", code)
+    code = re.sub(r"\.\s*set_shadow\s*\([^)]*\)", "", code)
+
+    # ManimGL DotCloud / GlowDot -> Dot
+    code = re.sub(r"\bDotCloud\(", "Dot(", code)
+    code = re.sub(r"\bGlowDot\(", "Dot(", code)
+
+    # ManimGL axes.get_graph -> ManimCE axes.plot
+    code = re.sub(r"\.get_graph\(", ".plot(", code)
+
+    # CYAN doesn't exist in ManimCE — replace with TEAL
+    code = re.sub(r"\bCYAN\b", "TEAL", code)
+
+    # .set_rate_func() is an Animation method, not a mobject method — remove it
+    code = re.sub(r"\.\s*set_rate_func\s*\([^)]*\)", "", code)
 
     if "class GeneratedScene" not in code:
         code = re.sub(
-            r"class (\w+)\((Scene|ThreeDScene)\)",
+            r"class (\w+)\((Scene|ThreeDScene|MovingCameraScene)\)",
             r"class GeneratedScene(\2)",
             code,
             count=1,
@@ -180,9 +173,9 @@ def _validate_code(code: str) -> str:
         compile(code, "<generated>", "exec")
     except SyntaxError as e:
         logger.warning("Generated code has syntax error: %s", e)
-        # Try to extract just from 'from manimlib' to end of the last indented block
+        # Try to extract just from 'from manim' to end of the last indented block
         class_match = re.search(
-            r"(from manimlib import \*.*?class GeneratedScene\([^)]*\):.*)",
+            r"(from manim import \*.*?class GeneratedScene\([^)]*\):.*)",
             code, re.S,
         )
         if class_match:
@@ -236,7 +229,7 @@ def generate_scene_code(
     plan: dict,
     context: Context,
 ) -> str:
-    """Generate ManimGL code for a single scene using two-turn conversation.
+    """Generate ManimCE code for a single scene.
 
     Args:
         scene: Scene dict from the plan.
@@ -252,48 +245,10 @@ def generate_scene_code(
 
     client = genai.Client(vertexai=True, project=PROJECT_ID, location="global")
 
-    catalog_prompt = get_catalog_prompt()
-    category_request = CODEGEN_CATEGORY_REQUEST_PROMPT.format(
-        catalog=catalog_prompt,
-        scene_title=scene.get("title", ""),
-        visual_description=scene.get("visual_description", ""),
-        manim_approach=scene.get("manim_approach", ""),
-    )
+    # Golden examples disabled — relying on skills + API docs in system prompt
+    example_code = "# Refer to the API reference and best practices in the system prompt."
 
-    # Turn 1: Ask model which categories it wants
-    try:
-        cat_response = _api_call_with_retry(
-            client, CODEGEN_MODEL,
-            contents=[
-                Content(role="model", parts=[Part(text=CODEGEN_SYSTEM_PROMPT)]),
-                Content(role="user", parts=[Part(text=category_request)]),
-            ],
-            config=GenerateContentConfig(
-                thinking_config=ThinkingConfig(thinking_budget=4000),
-            ),
-            scene_id=scene_id, call_label="categories",
-        )
-
-        cat_text = ""
-        if cat_response.candidates and cat_response.candidates[0].content:
-            for part in cat_response.candidates[0].content.parts:
-                if part.text:
-                    cat_text += part.text
-
-        categories = _extract_categories(cat_text)
-        logger.info("Codegen %s: requested categories: %s", scene_id, categories)
-
-    except Exception as e:
-        logger.warning("Codegen %s: category selection failed (%s), using defaults", scene_id, e)
-        categories = ["equations_and_tex", "text_and_typography"]
-
-    # Load example code for selected categories
-    if categories:
-        example_code = load_examples_for_categories(categories)
-    else:
-        example_code = "# No example code requested"
-
-    # Turn 2: Generate the scene code
+    # Generate the scene code
     refs_str = json.dumps(scene.get("references", []), indent=2)
     scene_prompt = CODEGEN_SCENE_PROMPT.format(
         scene_title=scene.get("title", ""),
@@ -374,6 +329,7 @@ def recover_from_error(
         ],
         config=GenerateContentConfig(
             thinking_config=ThinkingConfig(thinking_budget=THINKING_BUDGET),
+            tools=[Tool(google_search=GoogleSearch())],
         ),
         scene_id=scene_id, call_label="error-recovery",
     )

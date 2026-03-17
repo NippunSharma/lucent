@@ -55,7 +55,7 @@ VIDEO_PRESETS: dict[str, VideoPreset] = {
         width=1920, height=1080,
         aspect_ratio="16:9",
         frame_height=8.0,
-        layout_hint="Wide 16:9 layout. The ManimGL visible frame is ~14.2 units wide × 8.0 units tall "
+        layout_hint="Wide 16:9 layout. The Manim visible frame is ~14.2 units wide × 8.0 units tall "
                      "(x: -7.1 to +7.1, y: -4.0 to +4.0). Use the full horizontal width for graphs, "
                      "equations, and diagrams. Side-by-side comparisons work well. "
                      "CRITICAL: All content MUST stay within x∈[-6.5, 6.5] and y∈[-3.5, 3.5] to avoid cropping. "
@@ -75,7 +75,7 @@ VIDEO_PRESETS: dict[str, VideoPreset] = {
         width=1920, height=1080,
         aspect_ratio="16:9",
         frame_height=8.0,
-        layout_hint="Wide 16:9 layout. The ManimGL visible frame is ~14.2 units wide × 8.0 units tall "
+        layout_hint="Wide 16:9 layout. The Manim visible frame is ~14.2 units wide × 8.0 units tall "
                      "(x: -7.1 to +7.1, y: -4.0 to +4.0). Use the full horizontal width for graphs, "
                      "equations, and diagrams. Side-by-side comparisons work well. "
                      "CRITICAL: All content MUST stay within x∈[-6.5, 6.5] and y∈[-3.5, 3.5] to avoid cropping. "
@@ -93,7 +93,7 @@ VIDEO_PRESETS: dict[str, VideoPreset] = {
         width=1080, height=1920,
         aspect_ratio="9:16",
         frame_height=14.2,
-        layout_hint="Tall 9:16 PORTRAIT layout for vertical video. The ManimGL visible frame is ~8.0 units wide × 14.2 units tall "
+        layout_hint="Tall 9:16 PORTRAIT layout for vertical video. The Manim visible frame is ~8.0 units wide × 14.2 units tall "
                      "(x: -4.0 to +4.0, y: -7.1 to +7.1). THIS IS A NARROW, TALL FRAME. "
                      "Stack elements VERTICALLY — title at y≈5-6, main visual centered around y≈0, "
                      "supporting text or labels at y≈-4 to -5. "
@@ -105,7 +105,7 @@ VIDEO_PRESETS: dict[str, VideoPreset] = {
                      "After creating any element, verify its width fits: mob.set_width(min(mob.get_width(), 7)).",
         style_hint="FAST-PACED and punchy. Animations should be quick: run_time=0.5-1.5s. "
                    "Use self.wait(0.5-1.5) — just enough to register, never lingering. "
-                   "Favor snappy transitions: FadeIn(shift=UP*0.5), rapid ShowCreation. "
+                   "Favor snappy transitions: FadeIn(shift=UP*0.5), rapid Create. "
                    "Use bold colors and large text. Every second must have visual motion. "
                    "No slow builds — get to the payoff fast. Use Flash() and Indicate() liberally.",
         planner_hint="Plan 2-3 scenes for a YouTube Short (30-50 seconds TOTAL). "
@@ -120,7 +120,7 @@ VIDEO_PRESETS: dict[str, VideoPreset] = {
         width=1080, height=1920,
         aspect_ratio="9:16",
         frame_height=14.2,
-        layout_hint="Tall 9:16 PORTRAIT layout. The ManimGL visible frame is ~8.0 units wide × 14.2 units tall "
+        layout_hint="Tall 9:16 PORTRAIT layout. The Manim visible frame is ~8.0 units wide × 14.2 units tall "
                      "(x: -4.0 to +4.0, y: -7.1 to +7.1). THIS IS A NARROW, TALL FRAME. "
                      "Stack EVERYTHING vertically. Use font_size=60+ for maximum mobile readability. "
                      "Keep everything centered — avoid edges (platform UI overlaps). "
@@ -132,7 +132,7 @@ VIDEO_PRESETS: dict[str, VideoPreset] = {
                      "After creating any element, verify its width fits: mob.set_width(min(mob.get_width(), 6)).",
         style_hint="MAXIMUM energy and speed. Animations should be rapid: run_time=0.3-1.0s. "
                    "Minimal self.wait() — at most 0.5-1.0s, keep constant visual motion. "
-                   "Use dramatic reveals: scale-up FadeIn, quick ShowCreation, Flash on key numbers. "
+                   "Use dramatic reveals: scale-up FadeIn, quick Create, Flash on key numbers. "
                    "Bold, high-contrast colors. Oversized text and numbers. "
                    "Every frame must be visually interesting — viewers will swipe away in 1 second if bored. "
                    "Use LaggedStartMap for rapid sequential reveals. Favor wow-factor over precision.",
@@ -148,7 +148,7 @@ VIDEO_PRESETS: dict[str, VideoPreset] = {
         width=1080, height=1080,
         aspect_ratio="1:1",
         frame_height=8.0,
-        layout_hint="Square 1:1 layout. The ManimGL visible frame is 8.0 units wide × 8.0 units tall "
+        layout_hint="Square 1:1 layout. The Manim visible frame is 8.0 units wide × 8.0 units tall "
                      "(x: -4.0 to +4.0, y: -4.0 to +4.0). "
                      "Center the main visual. Use compact, centered arrangements — avoid edges. "
                      "CRITICAL: All content MUST stay within x∈[-3.5, 3.5] and y∈[-3.5, 3.5] to avoid cropping. "
@@ -170,7 +170,7 @@ VIDEO_PRESETS: dict[str, VideoPreset] = {
         width=1920, height=1080,
         aspect_ratio="16:9",
         frame_height=8.0,
-        layout_hint="Wide 16:9 layout. The ManimGL visible frame is ~14.2 units wide × 8.0 units tall "
+        layout_hint="Wide 16:9 layout. The Manim visible frame is ~14.2 units wide × 8.0 units tall "
                      "(x: -7.1 to +7.1, y: -4.0 to +4.0). "
                      "Center the single visual concept. Keep the scene uncluttered. "
                      "CRITICAL: All content MUST stay within x∈[-6.5, 6.5] and y∈[-3.5, 3.5] to avoid cropping. "

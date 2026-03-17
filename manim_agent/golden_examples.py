@@ -33,9 +33,9 @@ def get_catalog_prompt() -> str:
     summaries — roughly 2-3K tokens — so the model can choose categories.
     """
     catalog = _load_catalog()
-    lines = ["# Available ManimGL Example Categories", ""]
+    lines = ["# Available Manim Example Categories", ""]
     lines.append(
-        "Below are categories of real 3Blue1Brown ManimGL code examples. "
+        "Below are categories of real Manim code examples. "
         "You can request any of these categories to see actual working code."
     )
     lines.append("")

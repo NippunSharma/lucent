@@ -1,7 +1,7 @@
-"""ManimGL rendering via Cloud Run service.
+"""Manim Community Edition rendering via Cloud Run service.
 
-Sends scene code to a remote manimgl renderer running on Cloud Run,
-which renders headless on Linux with proper OpenGL support.
+Sends scene code to a remote Manim renderer running on Cloud Run,
+which renders headless on Linux with Cairo.
 Falls back to local rendering if MANIM_RENDER_BACKEND=local.
 """
 
@@ -24,7 +24,7 @@ CLOUDRUN_URL = os.environ.get(
     "MANIMGL_CLOUDRUN_URL",
     "https://manimgl-renderer-271738835587.us-east1.run.app",
 )
-RENDER_TIMEOUT = int(os.environ.get("MANIM_RENDER_TIMEOUT", "540"))
+RENDER_TIMEOUT = int(os.environ.get("MANIM_RENDER_TIMEOUT", "120"))
 DEFAULT_QUALITY = os.environ.get("MANIM_RENDER_QUALITY", "l")
 
 _BUNDLED_FFMPEG_DIR = Path(__file__).resolve().parent.parent / "ffmpeg-full" / "ffmpeg-master-latest-win64-gpl" / "bin"
@@ -113,7 +113,7 @@ def _render_scene_cloudrun(
     resolution: tuple[int, int] | None = None,
     frame_height: float | None = None,
 ) -> RenderResult:
-    """Render a scene via the Cloud Run manimgl service."""
+    """Render a scene via the Cloud Run Manim service."""
     code_hash = hashlib.sha256(code.encode()).hexdigest()[:16]
     t0 = time.time()
 
@@ -138,25 +138,35 @@ def _render_scene_cloudrun(
 
     logger.info("Renderer %s: sending to Cloud Run (%s)", scene_id, CLOUDRUN_URL)
 
-    try:
-        resp = requests.post(
-            f"{CLOUDRUN_URL}/render",
-            json=payload,
-            headers=headers,
-            timeout=RENDER_TIMEOUT,
-        )
-    except requests.Timeout:
-        return RenderResult(
-            success=False, scene_id=scene_id,
-            error=f"Cloud Run request timed out after {RENDER_TIMEOUT}s",
-            code_hash=code_hash,
-        )
-    except Exception as e:
-        return RenderResult(
-            success=False, scene_id=scene_id,
-            error=f"Cloud Run request failed: {e}",
-            code_hash=code_hash,
-        )
+    max_429_retries = 5
+    for attempt in range(max_429_retries + 1):
+        try:
+            resp = requests.post(
+                f"{CLOUDRUN_URL}/render",
+                json=payload,
+                headers=headers,
+                timeout=RENDER_TIMEOUT,
+            )
+        except requests.Timeout:
+            return RenderResult(
+                success=False, scene_id=scene_id,
+                error=f"Cloud Run request timed out after {RENDER_TIMEOUT}s",
+                code_hash=code_hash,
+            )
+        except Exception as e:
+            return RenderResult(
+                success=False, scene_id=scene_id,
+                error=f"Cloud Run request failed: {e}",
+                code_hash=code_hash,
+            )
+
+        if resp.status_code == 429 and attempt < max_429_retries:
+            delay = min(10 * (2 ** attempt), 60)
+            logger.warning("Renderer %s: got 429, retrying in %ds (attempt %d/%d)",
+                           scene_id, delay, attempt + 1, max_429_retries)
+            time.sleep(delay)
+            continue
+        break
 
     elapsed = time.time() - t0
 
@@ -264,13 +274,13 @@ def render_scene(
     resolution: tuple[int, int] | None = None,
     frame_height: float | None = None,
 ) -> RenderResult:
-    """Render a single ManimGL scene.
+    """Render a single Manim scene.
 
     Args:
         quality: "l" (low 480p), "m" (medium 720p), "h" (HD 1080p), "k" (4K).
                  Defaults to MANIM_RENDER_QUALITY env var or "l".
         resolution: Custom (width, height) tuple, overrides quality presets.
-        frame_height: ManimGL coordinate frame height for custom aspect ratios.
+        frame_height: Manim coordinate frame height for custom aspect ratios.
 
     Uses Cloud Run by default. Set MANIM_RENDER_BACKEND=local for local rendering.
     """
@@ -297,7 +307,7 @@ def render_all_scenes(
         quality: "l" (low 480p), "m" (medium 720p), "h" (HD 1080p), "k" (4K).
                  Defaults to MANIM_RENDER_QUALITY env var or "l".
         resolution: Custom (width, height) tuple, overrides quality presets.
-        frame_height: ManimGL coordinate frame height for custom aspect ratios.
+        frame_height: Manim coordinate frame height for custom aspect ratios.
 
     Uses Cloud Run batch endpoint by default.
     """
@@ -319,24 +329,15 @@ def render_all_scenes(
 # Local rendering fallback (kept for dev/testing)
 # ---------------------------------------------------------------------------
 
-def _find_manimgl() -> str:
-    override = os.environ.get("MANIMGL_CMD")
+def _find_manim() -> str:
+    override = os.environ.get("MANIM_CMD")
     if override:
         return override
-    import shutil, sys
-    found = shutil.which("manimgl")
+    import shutil
+    found = shutil.which("manim")
     if found:
         return found
-    try:
-        import manimlib
-        env_dir = Path(manimlib.__file__).resolve().parents[1]
-        for sub in ["Scripts", "bin", ""]:
-            candidate = env_dir / sub / ("manimgl.exe" if os.name == "nt" else "manimgl")
-            if candidate.exists():
-                return str(candidate)
-    except ImportError:
-        pass
-    return "manimgl"
+    return "manim"
 
 
 def _render_scene_local(
@@ -344,12 +345,12 @@ def _render_scene_local(
     code: str,
     workspace: Path,
 ) -> RenderResult:
-    """Render a single scene locally via manimgl subprocess."""
+    """Render a single scene locally via manim subprocess."""
     logger.info("Renderer: starting local render %s", scene_id)
     t0 = time.time()
 
     code_hash = hashlib.sha256(code.encode()).hexdigest()[:16]
-    manimgl_cmd = _find_manimgl()
+    manim_cmd = _find_manim()
 
     scene_dir = workspace / scene_id
     scene_dir.mkdir(parents=True, exist_ok=True)
@@ -358,11 +359,12 @@ def _render_scene_local(
     scene_file.write_text(code, encoding="utf-8")
 
     cmd = [
-        manimgl_cmd,
+        manim_cmd, "render",
         f"scene_{scene_id}.py",
         "GeneratedScene",
-        "-w", "--hd",
-        "--file_name", scene_id,
+        "-qh",
+        "--media_dir", str(scene_dir / "media"),
+        "--disable_caching",
     ]
 
     env = os.environ.copy()

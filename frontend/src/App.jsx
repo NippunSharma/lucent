@@ -1,7 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { GeminiLiveAPI, EventType } from './utils/gemini-api';
 import { AudioStreamer, AudioPlayer } from './utils/media-utils';
-import { startGeneration, fetchScreenshotBase64, fetchPresets } from './utils/video-api';
+import { startGeneration, resumeGeneration, getPersistedVideoId, fetchScreenshotBase64, fetchPresets } from './utils/video-api';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -154,6 +154,37 @@ export default function App() {
   const pendingVideoResultRef = useRef(null);
 
   useEffect(() => { isGeneratingRef.current = isGenerating; }, [isGenerating]);
+
+  useEffect(() => {
+    const pendingId = getPersistedVideoId();
+    if (!pendingId) return;
+    setIsGenerating(true);
+    setCurrentView(VIEW.CONNECTED);
+    setGenStep('generating_scenes');
+    setGenProgress(50);
+
+    const abort = new AbortController();
+    genAbortRef.current = abort;
+
+    const { promise } = resumeGeneration(pendingId, {
+      signal: abort.signal,
+      onProgress: (status) => {
+        setGenStep(status.step || 'generating_scenes');
+        if (status.progress != null) setGenProgress(status.progress);
+      },
+    });
+
+    promise.then((result) => {
+      if (!abort.signal.aborted) presentVideoResult(result);
+    }).catch((e) => {
+      if (e.name === 'AbortError') return;
+      setGenError(e.message);
+      setIsGenerating(false);
+    }).finally(() => { genAbortRef.current = null; });
+
+    return () => abort.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const addLog = useCallback((msg) => {
     setLogs((prev) => [...prev.slice(-100), { ts: new Date().toLocaleTimeString(), msg }]);
